@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+    <div class="container">
+    <div class="card-deck">
+    {% if results == [] %}
+        <h5 class="card text-center">No device has been connected</h5>
+    {% endif %}
+    {% for each_key in results %}
+        <div class="card text-center" style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title">Wearable</h5>
+                <p class="card-text">API Key -> {{ each_key[0] }}</p>
+                <a href="/live/{{ each_key[0] }}" class="btn btn-primary">Live</a>
+                <a href="/history/{{ each_key[0] }}" class="btn btn-dark">History</a>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+    </div>
+{% endblock %}

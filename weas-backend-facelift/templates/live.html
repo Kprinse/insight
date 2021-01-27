@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Expanded card{% endblock %}
+{% block content %}
+    <div class="jumbotron">
+        <h1>Sensor Reading</h1>
+        <p>{{ api_key }}</p>
+        {% for label in labels %}
+            <h5>{{ label }}</h5>
+            <p id="{{ label }}">-- --</p>
+        {% endfor %}
+        <img id="img_stream" src="" width="500" height="500"/>
+        <canvas id="temp_array" width="400" height="400" style="border: 1px solid #c3c3c3;"></canvas>
+        <a href="/" class="btn btn-primary">Back To Dashboard</a>
+        <a href="/history/{{ api_key | safe }}" class="btn btn-dark">History</a>
+    </div>
+
+    <script>
+        let canvas = document.getElementById("temp_array");
+        let ctx = canvas.getContext("2d");
+        let box_dimension = 100;
+
+        color_map = {
+            temps: [100, 95, 90, 85, 80, 75, 70],
+            colors: ["#ff0000", "#ff5a00", "#ff8d00", "#ffb400", "#ffdb00", "#fdff00", "#a3ff00", "#3cff00"],
+
+            get_color : function(temp) {
+                for (let i = 0; i < this.temps.length; i++) {
+                    if (temp > this.temps[i]) {
+                        return this.colors[i];
+                    }
+                }
+                return this.colors[-1];
+            }
+        }
+
+        let interval = setInterval(updateTags, 1000);
+
+        function updateTags() {
+            socket.emit('Fetch Sensor Data');
+        }
+
+        socket.on('Requested Data', function (msg) {
+            // console.log(msg.proximity_sensor)
+            document.getElementById("Temperature").innerHTML = String(msg.hr);
+            document.getElementById("Carbon Dioxide Levels").innerHTML = String(msg.co_level);
+            document.getElementById("Longitude").innerHTML = String(msg.lon);
+            document.getElementById("Latitude").innerHTML = String(msg.lat);
+            document.getElementById("Proximity").innerHTML = String(msg.proximity_sensor);
+            document.getElementById("img_stream").src = String(msg.streamed_image);
+
+            var i = 0;
+            for (let row = 0; row <= 3; row++) {
+                for (let col = 0; col <= 3; col++) {
+                    ctx.fillStyle = color_map.get_color(msg.thermal_array[i]);
+                    ctx.fillRect(row * 100, col * 100, box_dimension, box_dimension);
+                    i++;
+                }
+            }
+        })
+    </script>
+{% endblock %}

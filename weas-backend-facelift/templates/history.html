@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}History{% endblock %}
+{% block content %}
+    <div class="container-fluid">
+        <div class="jumbotron">
+            <h1>History</h1>
+            {% for label in labels %}
+                <canvas id="{{ label | safe }}"></canvas>
+            {% endfor %}
+            <video height="500" width="500" controls>
+                <source src="{{ url_for('video_file', video='images.mp4') }}" type="video/mp4">
+                <source src="../video/project.mp4" type="video/mp4">
+            </video>
+        </div>
+    </div>
+    {% for count in range(labels|length) %}
+        <script>
+            var ctx = document.getElementById("{{ labels[count] }}").getContext('2d');
+            var chart = new Chart(ctx, {
+                // The type of chart we want to create
+                type: 'line',
+
+                // The data for our dataset
+                data: {
+                    labels: {{ data[-1][::-1] | safe }},
+                    datasets: [{
+                        label: '{{ labels[count] }}',
+                        backgroundColor: 'rgb(215,5,5)',
+                        borderColor: 'rgb(255, 99, 132)',
+                        data: {{ data[count][::-1] | safe }}
+                    }]
+                },
+
+                // Configuration options go here
+                options: {}
+            });
+        </script>
+    {% endfor %}
+{% endblock %}

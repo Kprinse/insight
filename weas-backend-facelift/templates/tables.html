@@ -1,0 +1,134 @@
+{% extends "modern-base.html" %}
+{% block tables_active %}class="active"{% endblock %}
+{% block content %}
+    <div class="content">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card ">
+                    <div class="card-header">
+                        <h4 class="card-title"> Live Sensor Readings</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table tablesorter " id="">
+                                <thead class=" text-primary">
+                                <tr>
+                                    <th>
+                                        Sensor
+                                    </th>
+                                    <th>
+                                        Data Reading
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for label in labels %}
+                                    <tr>
+                                        <td>
+                                            {{ label }}
+                                        </td>
+                                        <td id="{{ label }}">
+                                            ----
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-sm-6 text-left">
+                                <h5 class="card-category">Sensor Reading</h5>
+                                <h2 class="card-title">Thermal Array</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <canvas class="mx-auto d-block" id="temp_array" width="400" height="400" style="border: 1px solid #c3c3c3;"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card card-chart">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-sm-6 text-left">
+                                <h5 class="card-category">Sensor Reading</h5>
+                                <h2 class="card-title">Camera Image</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <img class="mx-auto d-block" id="img_stream" src="" width="400" height="400"/>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block script %}
+    <script>
+        let canvas = document.getElementById("temp_array");
+        let ctx = canvas.getContext("2d");
+        ctx.font = "20px Arial";
+        let box_dimension = 100;
+
+        color_map = {
+            temps: [100, 95, 90, 85, 80, 75, 70],
+            colors: ["#ff0000", "#ff5a00", "#ff8d00", "#ffb400", "#ffdb00", "#fdff00", "#a3ff00", "#3cff00"],
+
+            get_color: function (temp) {
+                for (let i = 0; i < this.temps.length; i++) {
+                    if (temp >= this.temps[i]) {
+                        return this.colors[i];
+                    }
+                }
+                return this.colors[-1];
+            }
+        }
+
+        let interval = setInterval(updateTags, 1000);
+
+        function updateTags() {
+            socket.emit('Fetch Sensor Data');
+        }
+
+        socket.on('Requested Data', function (msg) {
+            if (msg == 'Failed') {
+                return;
+            }
+
+            document.getElementById("Heart Rate").innerHTML = String(msg.hr);
+            document.getElementById("Carbon Monoxide Levels").innerHTML = String(msg.co_level);
+            document.getElementById("Longitude").innerHTML = String(msg.lon);
+            document.getElementById("Latitude").innerHTML = String(msg.lat);
+            document.getElementById("Proximity").innerHTML = String(msg.proximity_sensor);
+            document.getElementById("Image File").innerHTML = String(msg.streamed_image);
+            document.getElementById("Thermal Array").innerHTML = String(msg.thermal_array);
+            document.getElementById("img_stream").src = String(msg.streamed_image);
+            console.log(msg.thermal_array);
+
+
+            var i = 0;
+            for (let row = 0; row <= 3; row++) {
+                for (let col = 0; col <= 3; col++) {
+                    ctx.fillStyle = color_map.get_color(msg.thermal_array[i]);
+                    ctx.fillRect(col * 100, row * 100, box_dimension, box_dimension);
+                    i++;
+                }
+            }
+
+            i = 0;
+            for (let row = 0; row <= 3; row++) {
+                for (let col = 0; col <= 3; col++) {
+                    ctx.fillStyle = "black";
+                    ctx.fillText(msg.thermal_array[i], col * 100 + 35, row * 100 + 60);
+                    i++;
+                }
+            }
+        })
+    </script>
+{% endblock %}

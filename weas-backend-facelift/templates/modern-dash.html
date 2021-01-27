@@ -1,0 +1,152 @@
+{% extends "modern-base.html" %}
+{% block dashboard_active %}class="active"{% endblock %}
+{% block content %}
+    <div class="content">
+        <div class="row">
+            <div class="col-lg-6"> {# Was col-12 #}
+                <div class="card card-chart">
+                    <div class="card-header ">
+                        <div class="row">
+                            <div class="col-sm-6 text-left">
+                                <h5 class="card-category">Sensor Reading</h5>
+                                <h2 class="card-title">{{ labels[0] }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="{{ labels[0] }}"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card card-chart">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-sm-6 text-left">
+                                <h5 class="card-category">Sensor Reading</h5>
+                                <h2 class="card-title">{{ labels[1] }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="{{ labels[1] }}"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card card-chart">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-sm-6 text-left">
+                                <h5 class="card-category">Sensor Reading</h5>
+                                <h2 class="card-title">{{ labels[2] }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="{{ labels[2] }}"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card card-chart">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-sm-6 text-left">
+                                <h5 class="card-category">Sensor Reading</h5>
+                                <h2 class="card-title">{{ labels[3] }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="{{ labels[3] }}"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card card-chart">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-md-6 text-left">
+                                <h5 class="card-category">Sensor Reading</h5>
+                                <h2 class="card-title">{{ labels[4] }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="{{ labels[4] }}"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card card-chart">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-sm-6 text-left">
+                                <h5 class="card-category">Sensor Reading</h5>
+                                <h2 class="card-title">{{ labels[5] }}</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="{{ labels[5] }}"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card card-chart">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-sm-6 text-left">
+                                <h5 class="card-category">Camera Reading</h5>
+                                <h2 class="card-title">Video</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <video class="mx-auto d-block" height="400" width="400" controls>
+                            <source src="{{ url_for('video_file', video='test.mp4') }}" type="video/mp4">
+                            <source src="../video/project.mp4" type="video/mp4">
+                        </video>
+{#                        <div class="chart-area">#}
+{#                            <canvas id="{{ labels[5] }}"></canvas>#}
+{#                        </div>#}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    {% for count in range(0, labels|length) %}
+        <script>
+            var ctx = document.getElementById("{{ labels[count] }}").getContext('2d');
+            var chart = new Chart(ctx, {
+                // The type of chart we want to create
+                type: 'line',
+
+                // The data for our dataset
+                data: {
+                    labels: {{ data[-1][::-1] | safe }},
+                    datasets: [{
+                        fill: false,
+                        label: '{{ labels[count] }}',
+                        backgroundColor: 'rgb(215,5,5)',
+                        borderColor: 'rgb(255, 99, 132)',
+                        data: {{ data[count][::-1] | safe }}
+                    }]
+                },
+
+                // Configuration options go here
+                options: {}
+            });
+        </script>
+    {% endfor %}
+{% endblock %}

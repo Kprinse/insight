@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Uploaded Image{% endblock %}
+{% block content %}
+    <div class="jumbotron">
+        <h1>File Upload</h1>
+        <video height="500" width="500" controls>
+            <source src="{{ url_for('video_file', video='project.mp4') }}" type="video/mp4">
+            <source src="../video/project.mp4" type="video/mp4">
+        </video>
+    </div>
+{% endblock %}
